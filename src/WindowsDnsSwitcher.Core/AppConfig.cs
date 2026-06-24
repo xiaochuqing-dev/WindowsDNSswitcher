@@ -12,22 +12,24 @@ public sealed class AppConfig
     };
 
     public AppConfig()
-        : this(null, string.Empty, string.Empty, false)
+        : this(null, string.Empty, string.Empty, false, AppLanguageSettings.DefaultConfigValue)
     {
     }
 
     public AppConfig(string? selectedAdapter)
-        : this(selectedAdapter, string.Empty, string.Empty, false)
+        : this(selectedAdapter, string.Empty, string.Empty, false, AppLanguageSettings.DefaultConfigValue)
     {
     }
 
     [JsonConstructor]
-    public AppConfig(string? selectedAdapter, string? primaryDns, string? secondaryDns, bool showAllAdapters)
+    public AppConfig(string? selectedAdapter, string? primaryDns, string? secondaryDns, bool showAllAdapters, string? language = null)
     {
         SelectedAdapter = string.IsNullOrWhiteSpace(selectedAdapter) ? null : selectedAdapter;
         PrimaryDns = primaryDns?.Trim() ?? string.Empty;
         SecondaryDns = secondaryDns?.Trim() ?? string.Empty;
         ShowAllAdapters = showAllAdapters;
+        AppLanguage = AppLanguageSettings.Parse(language);
+        Language = AppLanguageSettings.ToConfigValue(AppLanguage);
     }
 
     [JsonPropertyName("selectedAdapter")]
@@ -42,6 +44,12 @@ public sealed class AppConfig
     [JsonPropertyName("showAllAdapters")]
     public bool ShowAllAdapters { get; init; }
 
+    [JsonPropertyName("language")]
+    public string Language { get; init; } = AppLanguageSettings.DefaultConfigValue;
+
+    [JsonIgnore]
+    public AppLanguage AppLanguage { get; init; } = AppLanguage.Chinese;
+
     [JsonPropertyName("lastAdapterName")]
     public string? LegacyLastAdapterName { get; init; }
 
@@ -53,18 +61,23 @@ public sealed class AppConfig
 
     public AppConfig WithSelectedAdapter(string? selectedAdapter)
     {
-        return new AppConfig(selectedAdapter, PrimaryDns, SecondaryDns, ShowAllAdapters);
+        return new AppConfig(selectedAdapter, PrimaryDns, SecondaryDns, ShowAllAdapters, Language);
     }
 
     public AppConfig WithCustomDns(CustomDnsSettings settings)
     {
         var normalized = settings.Normalize();
-        return new AppConfig(LastAdapterName, normalized.PrimaryDns, normalized.SecondaryDns, ShowAllAdapters);
+        return new AppConfig(LastAdapterName, normalized.PrimaryDns, normalized.SecondaryDns, ShowAllAdapters, Language);
     }
 
     public AppConfig WithShowAllAdapters(bool showAllAdapters)
     {
-        return new AppConfig(LastAdapterName, PrimaryDns, SecondaryDns, showAllAdapters);
+        return new AppConfig(LastAdapterName, PrimaryDns, SecondaryDns, showAllAdapters, Language);
+    }
+
+    public AppConfig WithLanguage(AppLanguage language)
+    {
+        return new AppConfig(LastAdapterName, PrimaryDns, SecondaryDns, ShowAllAdapters, AppLanguageSettings.ToConfigValue(language));
     }
 
     public static AppConfig Load(string path)
@@ -78,7 +91,7 @@ public sealed class AppConfig
 
             var json = File.ReadAllText(path);
             var loaded = JsonSerializer.Deserialize<AppConfig>(json, JsonOptions) ?? new AppConfig();
-            return new AppConfig(loaded.LastAdapterName, loaded.PrimaryDns, loaded.SecondaryDns, loaded.ShowAllAdapters);
+            return new AppConfig(loaded.LastAdapterName, loaded.PrimaryDns, loaded.SecondaryDns, loaded.ShowAllAdapters, loaded.Language);
         }
         catch
         {

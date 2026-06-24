@@ -15,9 +15,9 @@ public static class AdapterClassifier
 
     private static readonly string[] VirtualMarkers =
     [
-        "singbox_tun",
-        "sing-tun tunnel",
-        "xray_tun",
+        "_tun",
+        "tun ",
+        " tunnel",
         "wintun",
         "tap",
         "vethernet",
@@ -44,11 +44,13 @@ public static class AdapterClassifier
         "wfp ",
     ];
 
-    private static readonly string[] ProxyTunMarkers =
+    private static readonly string[] HighRiskVirtualMarkers =
     [
-        "singbox_tun",
-        "sing-tun tunnel",
-        "xray_tun",
+        "_tun",
+        "tun ",
+        " tunnel",
+        "wintun",
+        "tap",
     ];
 
     public static IEnumerable<AdapterInfo> GetDisplayAdapters(
@@ -84,9 +86,9 @@ public static class AdapterClassifier
             || ContainsAnyMarker(adapter, VirtualMarkers);
     }
 
-    public static bool IsProxyTunAdapter(AdapterInfo adapter)
+    public static bool IsHighRiskVirtualAdapter(AdapterInfo adapter)
     {
-        return ContainsAnyMarker(adapter, ProxyTunMarkers);
+        return ContainsAnyMarker(adapter, HighRiskVirtualMarkers);
     }
 
     private static bool IsBindingComponent(AdapterInfo adapter)

@@ -4,7 +4,7 @@ using WindowsDnsSwitcher.Core;
 var tests = new (string Name, Action Body)[]
 {
     ("Ranks real wireless adapters before virtual adapters", RanksRealWirelessAdaptersBeforeVirtualAdapters),
-    ("Flags proxy TUN adapters strongly", FlagsProxyTunAdaptersStrongly),
+    ("Flags high-risk virtual adapters strongly", FlagsHighRiskVirtualAdaptersStrongly),
     ("Filters binding components from adapter dropdown", FiltersBindingComponentsFromAdapterDropdown),
     ("Show all adapters still excludes binding components", ShowAllAdaptersStillExcludesBindingComponents),
     ("Honors saved adapter selection when available", HonorsSavedAdapterSelectionWhenAvailable),
@@ -18,8 +18,10 @@ var tests = new (string Name, Action Body)[]
     ("Builds custom DNS mode commands with secondary", BuildsCustomDnsModeCommandsWithSecondary),
     ("Requires confirmation before switching DNS modes", RequiresConfirmationBeforeSwitchingDnsModes),
     ("Saves and loads config", SavesAndLoadsConfig),
+    ("Saves and loads language preference", SavesAndLoadsLanguagePreference),
     ("Loads legacy adapter config", LoadsLegacyAdapterConfig),
     ("Falls back when config JSON is invalid", FallsBackWhenConfigJsonIsInvalid),
+    ("Formats English UI text", FormatsEnglishUiText),
     ("Formats public mode names", FormatsPublicModeNames),
     ("Formats adapter information and IPv6 status", FormatsAdapterInformationAndIpv6Status),
 };
@@ -53,7 +55,7 @@ void RanksRealWirelessAdaptersBeforeVirtualAdapters()
 {
     var adapters = new[]
     {
-        new AdapterInfo("singbox_tun", "singbox_tun tunnel", NetworkInterfaceType.Tunnel, OperationalStatus.Up, [], [], [], true),
+        new AdapterInfo("sample_tun", "Sample Tunnel Adapter", NetworkInterfaceType.Tunnel, OperationalStatus.Up, [], [], [], true),
         new AdapterInfo("WLAN", "Intel(R) Wi-Fi 6 AX201 160MHz", NetworkInterfaceType.Wireless80211, OperationalStatus.Up, ["192.168.1.12"], ["192.168.1.1"], ["8.8.8.8"], true),
     };
 
@@ -63,12 +65,12 @@ void RanksRealWirelessAdaptersBeforeVirtualAdapters()
     AssertEqual("WLAN", visible[0].Name);
 }
 
-void FlagsProxyTunAdaptersStrongly()
+void FlagsHighRiskVirtualAdaptersStrongly()
 {
-    var adapter = new AdapterInfo("xray_tun", "xray_tun", NetworkInterfaceType.Tunnel, OperationalStatus.Up, [], [], ["172.19.0.2"], false);
+    var adapter = new AdapterInfo("sample_tun", "Sample Tunnel Adapter", NetworkInterfaceType.Tunnel, OperationalStatus.Up, [], [], ["172.19.0.2"], false);
 
-    AssertTrue(AdapterClassifier.IsLikelyVirtual(adapter), "xray_tun should be virtual");
-    AssertTrue(AdapterClassifier.IsProxyTunAdapter(adapter), "xray_tun should be proxy TUN");
+    AssertTrue(AdapterClassifier.IsLikelyVirtual(adapter), "sample tunnel adapter should be virtual");
+    AssertTrue(AdapterClassifier.IsHighRiskVirtualAdapter(adapter), "sample tunnel adapter should be strongly flagged");
 }
 
 void FiltersBindingComponentsFromAdapterDropdown()
@@ -93,7 +95,7 @@ void ShowAllAdaptersStillExcludesBindingComponents()
     var adapters = new[]
     {
         new AdapterInfo("WLAN", "Intel(R) Wi-Fi 6 AX200 160MHz", NetworkInterfaceType.Wireless80211, OperationalStatus.Up, [], [], [], true),
-        new AdapterInfo("singbox_tun", "sing-tun Tunnel", NetworkInterfaceType.Tunnel, OperationalStatus.Up, [], [], [], false),
+        new AdapterInfo("sample_tun", "Sample Tunnel Adapter", NetworkInterfaceType.Tunnel, OperationalStatus.Up, [], [], [], false),
         new AdapterInfo("WLAN-Virtual WiFi Filter Driver-0000", "Intel(R) Wi-Fi 6 AX200 160MHz-Virtual WiFi Filter Driver", NetworkInterfaceType.Wireless80211, OperationalStatus.Up, [], [], [], false),
     };
 
@@ -101,7 +103,7 @@ void ShowAllAdaptersStillExcludesBindingComponents()
         .Select(adapter => adapter.Name)
         .ToArray();
 
-    AssertSequence(["WLAN", "singbox_tun"], visible);
+    AssertSequence(["WLAN", "sample_tun"], visible);
 }
 
 void HonorsSavedAdapterSelectionWhenAvailable()
@@ -255,6 +257,27 @@ void SavesAndLoadsConfig()
     }
 }
 
+void SavesAndLoadsLanguagePreference()
+{
+    var path = Path.Combine(Path.GetTempPath(), $"windows-dns-switcher-{Guid.NewGuid():N}.json");
+
+    try
+    {
+        AppConfig.Save(path, new AppConfig("WLAN", "9.9.9.9", "", false, "en"));
+        var loaded = AppConfig.Load(path);
+
+        AssertEqual("en", loaded.Language);
+        AssertEqual(AppLanguage.English, loaded.AppLanguage);
+    }
+    finally
+    {
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+        }
+    }
+}
+
 void LoadsLegacyAdapterConfig()
 {
     var path = Path.Combine(Path.GetTempPath(), $"windows-dns-switcher-{Guid.NewGuid():N}.json");
@@ -302,6 +325,19 @@ void FallsBackWhenConfigJsonIsInvalid()
             File.Delete(path);
         }
     }
+}
+
+void FormatsEnglishUiText()
+{
+    AssertEqual("Windows DNS Mode Switcher", UiText.Title(AppLanguage.English));
+    AssertEqual("Current mode: Automatic DNS Mode", NetworkInfoFormatter.FormatMode(DnsMode.AutomaticDns, AppLanguage.English));
+
+    var confirmation = ModeSwitchConfirmation.ForMode(DnsMode.CustomDns, "WLAN", AppLanguage.English);
+
+    AssertEqual("Confirm DNS Mode Switch", confirmation.Title);
+    AssertContains("Custom DNS Mode", confirmation.Message);
+    AssertContains("WLAN", confirmation.Message);
+    AssertContains("IPv4 DNS", confirmation.Message);
 }
 
 void FormatsPublicModeNames()

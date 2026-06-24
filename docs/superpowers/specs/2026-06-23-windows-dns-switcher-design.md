@@ -7,7 +7,7 @@ Build a small Windows desktop GUI tool named `WindowsDnsSwitcher` that switches 
 - Automatic DNS mode: automatic DNS through DHCP.
 - Custom DNS mode: static DNS `saved custom IPv4 DNS`.
 
-The app does not change IP address settings, IPv6 settings, system proxy, or v2rayN/sing-box state.
+The app does not change IP address settings, IPv6 settings, application routing, or system-wide traffic forwarding settings.
 
 ## Platform
 
@@ -59,13 +59,10 @@ Default selection priority:
 
 Default list hides likely virtual adapters. `显示所有网卡` includes them for manual recovery.
 
-Virtual adapter markers include:
+Virtual adapter markers include generic adapter categories such as:
 
-- `singbox_tun`
-- `sing-tun Tunnel`
-- `xray_tun`
-- `Wintun`
-- `TAP`
+- tunnel-like adapters
+- TAP-style adapters
 - `vEthernet`
 - `VMware`
 - `VirtualBox`
@@ -73,7 +70,7 @@ Virtual adapter markers include:
 - `Bluetooth`
 - `Loopback`
 
-If the user selects a suspicious virtual adapter, the app warns before changing DNS. For obvious proxy TUN adapters (`singbox_tun`, `sing-tun Tunnel`, `xray_tun`), the warning is stronger and recommends selecting the real WLAN/Wi-Fi adapter.
+If the user selects a suspicious virtual adapter, the app warns before changing DNS and recommends selecting a physical WLAN/Wi-Fi adapter.
 
 ## DNS Mode Detection
 
@@ -106,8 +103,8 @@ ipconfig /flushdns
 Custom DNS mode:
 
 ```text
-netsh interface ipv4 set dnsservers name=<adapter name> static 8.8.8.8 primary
-netsh interface ipv4 add dnsservers name=<adapter name> 1.1.1.1 index=2
+netsh interface ipv4 set dnsservers name=<adapter name> static <primary custom IPv4 DNS> primary
+netsh interface ipv4 add dnsservers name=<adapter name> <secondary custom IPv4 DNS> index=2
 ipconfig /flushdns
 ```
 

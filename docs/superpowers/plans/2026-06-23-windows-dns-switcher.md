@@ -68,7 +68,7 @@ dotnet publish src\WindowsDnsSwitcher.WinForms\WindowsDnsSwitcher.WinForms.cspro
 
 - [ ] **Step 1: Write failing tests**
 
-Tests assert that real wireless adapters rank before virtual adapters, proxy TUN names are strongly flagged, and saved adapter selection is honored when present.
+Tests assert that real wireless adapters rank before virtual adapters, high-risk virtual adapter names are strongly flagged, and saved adapter selection is honored when present.
 
 - [ ] **Step 2: Run tests and confirm failure**
 
@@ -82,7 +82,7 @@ Expected: compile failure or assertion failure because core classes do not exist
 
 - [ ] **Step 3: Implement minimal classifier**
 
-Add adapter model, virtual marker detection, proxy TUN marker detection, likely wireless detection, display filtering, and selection sorting.
+Add adapter model, virtual marker detection, high-risk virtual adapter detection, likely wireless detection, display filtering, and selection sorting.
 
 - [ ] **Step 4: Run tests and confirm pass**
 

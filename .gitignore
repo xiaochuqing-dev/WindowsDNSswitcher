@@ -1,5 +1,8 @@
 bin/
 obj/
+.vs/
+.vscode/
+.idea/
 dist/
 outputs/
 work/
@@ -7,3 +10,15 @@ work/.dotnet/
 work/dotnet-install.ps1
 *.user
 *.suo
+*.log
+*.zip
+*.rar
+*.7z
+publish/
+Release/
+Debug/
+*.pdb
+*.cache
+.env
+.env.*
+config.json

@@ -1,0 +1,11 @@
+﻿<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/WindowsDnsSwitcher.Core/WindowsDnsSwitcher.Core.csproj" />
+    <Project Path="src/WindowsDnsSwitcher.WinForms/WindowsDnsSwitcher.WinForms.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/WindowsDnsSwitcher.Tests/WindowsDnsSwitcher.Tests.csproj" />
+  </Folder>
+</Solution>
+
+

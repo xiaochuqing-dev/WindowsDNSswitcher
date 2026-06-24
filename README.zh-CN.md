@@ -6,7 +6,7 @@ WindowsDnsSwitcher 是一个轻量级 Windows DNS 模式切换工具，用于在
 
 ## 截图
 
-> 截图稍后添加。
+![WindowsDnsSwitcher 主界面](./docs/assets/windowsdnsswitcher-main-zh-cn.png)
 
 ## 功能特性
 

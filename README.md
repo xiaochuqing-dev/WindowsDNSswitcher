@@ -6,7 +6,7 @@ A lightweight Windows DNS mode switcher for quickly switching a network adapter 
 
 ## Screenshot
 
-![WindowsDnsSwitcher main window](./docs/assets/windowsdnsswitcher-main-zh-cn.png)
+![WindowsDnsSwitcher main window](./docs/assets/windowsdnsswitcher-main-en.png)
 
 ## Features
 

@@ -30,13 +30,11 @@ WindowsDnsSwitcher 是一个轻量级 Windows DNS 模式切换工具，用于在
 
 ## 下载与安装
 
-预构建版本会在后续添加。目前可以先从源码构建。
+从 [GitHub Releases 页面](https://github.com/xiaochuqing-dev/WindowsDNSswitcher/releases/latest) 下载最新预构建版本。
 
-后续发布版本可用后：
-
-1. 从本仓库下载发布包。
+1. 下载 `WindowsDnsSwitcher-v0.1.0-win-x64.zip`。
 2. 解压压缩包。
-3. 需要修改 DNS 设置时，以管理员身份运行程序。
+3. 需要修改 DNS 设置时，以管理员身份运行 `WindowsDnsSwitcher.exe`。
 4. 选择目标网卡。
 5. 按需在自动 DNS 和自定义 IPv4 DNS 之间切换。
 
@@ -130,4 +128,4 @@ build.bat
 
 ## 官方版本说明
 
-目前尚未发布官方预构建版本。请不要从非官方来源下载二进制文件。
+官方预构建版本只通过本仓库的 Releases 页面发布。

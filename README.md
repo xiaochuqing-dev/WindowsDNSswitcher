@@ -30,13 +30,11 @@ A lightweight Windows DNS mode switcher for quickly switching a network adapter 
 
 ## Download / Installation
 
-A prebuilt release will be added later. You can build from source for now.
+Download the latest prebuilt package from the [GitHub Releases page](https://github.com/xiaochuqing-dev/WindowsDNSswitcher/releases/latest).
 
-When a release package is available:
-
-1. Download the release package from this repository.
+1. Download `WindowsDnsSwitcher-v0.1.0-win-x64.zip`.
 2. Extract the archive.
-3. Run the application as administrator when changing DNS settings.
+3. Run `WindowsDnsSwitcher.exe` as administrator when changing DNS settings.
 4. Select a network adapter.
 5. Switch between automatic DNS and custom IPv4 DNS as needed.
 
@@ -135,4 +133,4 @@ Official releases are provided only from this repository.
 
 ## Official Release Note
 
-No official prebuilt release has been published yet. Do not download binaries from unofficial sources.
+Official prebuilt packages are published from this repository's Releases page only.

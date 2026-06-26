@@ -16,6 +16,7 @@ var tests = new (string Name, Action Body)[]
     ("Builds automatic DNS mode commands with safe argument arrays", BuildsAutomaticDnsModeCommandsWithSafeArgumentArrays),
     ("Builds custom DNS mode commands with primary only", BuildsCustomDnsModeCommandsWithPrimaryOnly),
     ("Builds custom DNS mode commands with secondary", BuildsCustomDnsModeCommandsWithSecondary),
+    ("Escapes PowerShell single quotes in adapter names", EscapesPowerShellSingleQuotesInAdapterNames),
     ("Requires confirmation before switching DNS modes", RequiresConfirmationBeforeSwitchingDnsModes),
     ("Saves and loads config", SavesAndLoadsConfig),
     ("Saves and loads language preference", SavesAndLoadsLanguagePreference),
@@ -185,9 +186,14 @@ void BuildsAutomaticDnsModeCommandsWithSafeArgumentArrays()
     var commands = DnsCommandFactory.CreateAutomaticDnsModeCommands("WLAN 中文").ToArray();
 
     AssertEqual(2, commands.Length);
-    AssertEqual("netsh", commands[0].FileName);
+    AssertEqual("powershell.exe", commands[0].FileName);
     AssertSequence(
-        ["interface", "ipv4", "set", "dnsservers", "name=WLAN 中文", "source=dhcp"],
+        [
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "Set-DnsClientServerAddress -InterfaceAlias 'WLAN 中文' -ResetServerAddresses",
+        ],
         commands[0].Arguments);
     AssertEqual("ipconfig", commands[1].FileName);
     AssertSequence(["/flushdns"], commands[1].Arguments);
@@ -198,8 +204,14 @@ void BuildsCustomDnsModeCommandsWithPrimaryOnly()
     var commands = DnsCommandFactory.CreateCustomDnsModeCommands("Wi-Fi 2", new CustomDnsSettings("9.9.9.9", "")).ToArray();
 
     AssertEqual(2, commands.Length);
+    AssertEqual("powershell.exe", commands[0].FileName);
     AssertSequence(
-        ["interface", "ipv4", "set", "dnsservers", "name=Wi-Fi 2", "static", "9.9.9.9", "primary"],
+        [
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "Set-DnsClientServerAddress -InterfaceAlias 'Wi-Fi 2' -ServerAddresses @('9.9.9.9')",
+        ],
         commands[0].Arguments);
     AssertSequence(["/flushdns"], commands[1].Arguments);
 }
@@ -208,14 +220,31 @@ void BuildsCustomDnsModeCommandsWithSecondary()
 {
     var commands = DnsCommandFactory.CreateCustomDnsModeCommands("Wi-Fi 2", new CustomDnsSettings("9.9.9.9", "149.112.112.112")).ToArray();
 
-    AssertEqual(3, commands.Length);
+    AssertEqual(2, commands.Length);
+    AssertEqual("powershell.exe", commands[0].FileName);
     AssertSequence(
-        ["interface", "ipv4", "set", "dnsservers", "name=Wi-Fi 2", "static", "9.9.9.9", "primary"],
+        [
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "Set-DnsClientServerAddress -InterfaceAlias 'Wi-Fi 2' -ServerAddresses @('9.9.9.9', '149.112.112.112')",
+        ],
         commands[0].Arguments);
+    AssertSequence(["/flushdns"], commands[1].Arguments);
+}
+
+void EscapesPowerShellSingleQuotesInAdapterNames()
+{
+    var commands = DnsCommandFactory.CreateAutomaticDnsModeCommands("Bob's Wi-Fi").ToArray();
+
     AssertSequence(
-        ["interface", "ipv4", "add", "dnsservers", "name=Wi-Fi 2", "149.112.112.112", "index=2"],
-        commands[1].Arguments);
-    AssertSequence(["/flushdns"], commands[2].Arguments);
+        [
+            "-NoProfile",
+            "-NonInteractive",
+            "-Command",
+            "Set-DnsClientServerAddress -InterfaceAlias 'Bob''s Wi-Fi' -ResetServerAddresses",
+        ],
+        commands[0].Arguments);
 }
 
 void RequiresConfirmationBeforeSwitchingDnsModes()
